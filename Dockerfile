@@ -9,10 +9,10 @@ WORKDIR /go/src/app
 # filesystem (i.e. to WORKDIR)
 COPY . .
 
-
+# Install git
 RUN apk add --no-cache git
 
-# 
+# Make ssh key available
 RUN mkdir -p /root/.ssh/
 ARG SSH_PRIVATE_KEY
 RUN echo "${SSH_PRIVATE_KEY}" > /root/.ssh/id_rsa
@@ -22,6 +22,5 @@ RUN cat /root/.ssh/id_rsa
 # also install application
 RUN go get -d -v ./...
 RUN go install -v ./...
-
 
 CMD ["app"]

@@ -1,0 +1,4 @@
+ - Enter api/ folder
+ - export GOPATH=$(go env GOPATH)
+ - export PATH=$PATH:$GOPATH/bin
+ - protoc -I /usr/local/include/ -I . --go_out=plugins=grpc:. api.proto

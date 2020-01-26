@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+service Finder {
+    rpc BuildIndex(Text) returns (Status) {}
+    rpc Lookup(Pattern) returns (Offsets) {}
+}
+
+message Text{
+    string value = 1;
+}
+
+message  Status {
+    int32 value = 1;
+}
+
+message Pattern {
+    string value = 1;
+}
+
+message Offsets {
+    repeated int32 value = 1;
+}

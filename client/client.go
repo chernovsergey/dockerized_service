@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	port    = "localhost:50505"
+	port    = "localhost:5050"
 	text    = "banana"
 	pattern = "ana"
 )

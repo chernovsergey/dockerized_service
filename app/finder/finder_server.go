@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"github.com/chernovsergey/dockerized_service/api"
+	"github.com/chernovsergey/dockerized_service/app/metrics"
+	"time"
 )
 
 type FinderServer struct {
@@ -21,10 +23,10 @@ func (s *FinderServer) BuildIndex(c context.Context, in *api.Text) (*api.Status,
 
 func (s *FinderServer) Lookup(c context.Context, p *api.Pattern) (*api.Offsets, error) {
 
-	//now := time.Now()
-	//defer func() {
-	//	metrics.ResponseLatency("make_lookup", time.Since(now).Seconds())
-	//}()
+	now := time.Now()
+	defer func() {
+		metrics.ObserveLatency("make_lookup", time.Since(now).Seconds())
+	}()
 
 	if s.finder.isEmpty() {
 		return nil, errors.New("index is empty")

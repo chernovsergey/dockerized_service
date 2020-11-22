@@ -62,7 +62,7 @@ func main() {
 	}()
 
 	select {
-	case <-time.After(10 * time.Second):
+	case <-time.After(60 * time.Second):
 		log.Println("stop")
 		log.Printf("Estimated requests per second = %v", success)
 	}

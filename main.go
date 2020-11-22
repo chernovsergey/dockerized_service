@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
-	"github.com/chernovsergey/dockerized_service/app/metrics"
+	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"golang.org/x/sync/errgroup"
+	"google.golang.org/grpc"
 	"log"
 	"net"
 	"net/http"
@@ -11,9 +13,6 @@ import (
 
 	"github.com/chernovsergey/dockerized_service/api"
 	"github.com/chernovsergey/dockerized_service/app/finder"
-	"google.golang.org/grpc"
-
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 const (
@@ -40,18 +39,16 @@ func grpcStart(ctx context.Context, port string) error {
 	// Create GRPC service and wrap main service in it
 	grpcServer := grpc.NewServer(
 		// provides Prometheus monitoring for Unary RPCs
-		grpc.UnaryInterceptor(metrics.GrpcMetrics.UnaryServerInterceptor()),
+		grpc.UnaryInterceptor(grpc_prometheus.UnaryServerInterceptor),
 	)
 	api.RegisterFinderServer(grpcServer, finderServer)
 
-	//grpc_prometheus.EnableHandlingTimeHistogram(
-	//	grpc_prometheus.WithHistogramBuckets([]float64{
-	//		.001, .005, .01, .025, .05, .1,
-	//	}),
-	//)
-	//grpc_prometheus.Register(grpcServer)
-
-	metrics.GrpcMetrics.InitializeMetrics(grpcServer)
+	grpc_prometheus.EnableHandlingTimeHistogram(
+		grpc_prometheus.WithHistogramBuckets([]float64{
+			.001, .005, .01, .025, .05, .1,
+		}),
+	)
+	grpc_prometheus.Register(grpcServer)
 
 	log.Println("Starting GRPC server.", "Port:", port)
 	select {
@@ -117,7 +114,7 @@ func main() {
 	case reason := <-errsGRPC:
 		log.Println("grpc server is down. reason = ", reason)
 	case reason := <-errsHTTP:
-		log.Println("gttp server is down. reason = ", reason)
+		log.Println("http server is down. reason = ", reason)
 	case <-ctx.Done():
 		log.Println("context canceled. reason = ", ctx.Err())
 	}
